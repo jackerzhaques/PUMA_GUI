@@ -10,13 +10,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    UART *uart = UART::getInstance();
-    uart->GetDevices();
+    this->uart = UART::getInstance();
+    uart->hook(this, MessageHandler);
 
     this->settings = new SerialSettingsWindow();
-    settings->show();
-
-    uart->hook(this, MessageHandler);
+    this->settings->autoConnect();
 
     QTimer *heartbeatTimeoutTimer = new QTimer(this);
     connect(heartbeatTimeoutTimer, SIGNAL(timeout()), this, SLOT(heartbeatTimeout()));
@@ -26,6 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    delete uart;
+    delete settings;
+    delete editor;
 }
 
 void MainWindow::MessageHandler(void* context, Message *m)
@@ -61,4 +66,12 @@ void MainWindow::Callback_Heartbeat()
     targetConnectedRecently = true;
     this->ui->connectedStatusLabel->setText("Connected");
     ui->connectedStatusLabel->setStyleSheet("color: green;");
+}
+
+void MainWindow::on_actionIDCD_Editor_triggered()
+{
+    if(!this->editor){
+        this->editor = new IDCD_Editor();
+    }
+    this->editor->show();
 }

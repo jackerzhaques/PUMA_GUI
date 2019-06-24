@@ -3,6 +3,7 @@
 
 void dump_message(Message m)
 {
+    qDebug() << "Message: " << m.Name;
     qDebug() << "ID: " << m.ID;
     qDebug() << "DLC: " << m.DLC;
     qDebug() << "Data: ";

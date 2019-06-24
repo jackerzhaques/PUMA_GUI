@@ -10,8 +10,10 @@
 #define MESSAGE_END_BYTE            ';'
 
 #include <cstdint>
+#include <QString>
 
 struct Message{
+    QString Name    = "BLANK_MESSAGE";
     uint16_t ID     = 0;
     uint8_t DLC     = 0;
     uint8_t *pData;

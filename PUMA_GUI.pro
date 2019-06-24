@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui serialport
+QT       += core gui serialport xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,18 +30,21 @@ SOURCES += \
     uart.cpp \
     serialsettingswindow.cpp \
     message.cpp \
-    idcd.cpp
+    idcd.cpp \
+    idcd_editor.cpp
 
 HEADERS += \
         mainwindow.h \
     uart.h \
     serialsettingswindow.h \
     message.h \
-    idcd.h
+    idcd.h \
+    idcd_editor.h
 
 FORMS += \
         mainwindow.ui \
-    serialsettingswindow.ui
+    serialsettingswindow.ui \
+    idcd_editor.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

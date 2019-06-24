@@ -192,7 +192,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Undefined</string>
+          <string>Control Status</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

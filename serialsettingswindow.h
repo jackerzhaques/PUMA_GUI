@@ -18,6 +18,8 @@ public:
     explicit SerialSettingsWindow(QWidget *parent = nullptr);
     ~SerialSettingsWindow();
 
+    void autoConnect();
+
 private slots:
     void on_RefreshButton_released();
 

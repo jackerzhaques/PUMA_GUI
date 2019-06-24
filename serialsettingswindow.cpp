@@ -19,6 +19,11 @@ SerialSettingsWindow::~SerialSettingsWindow()
     delete ui;
 }
 
+void SerialSettingsWindow::autoConnect()
+{
+    this->on_ConnectButton_released();
+}
+
 QString SerialSettingsWindow::GetPortName(bool &Ok)
 {
     QString PortName = this->ui->ComPort->currentText();
