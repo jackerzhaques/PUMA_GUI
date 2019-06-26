@@ -68,6 +68,8 @@ private slots:
 
     void on_thetaSendButton_released();
 
+    void on_actionSerial_Settings_triggered();
+
 private:
     Ui::MainWindow *ui;
     UART* uart                      = nullptr;

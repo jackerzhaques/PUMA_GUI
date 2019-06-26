@@ -168,10 +168,12 @@ void UART::CleanBuffer()
 
 void UART::ProcessBuffer()
 {
-    //Remove any corrupted messages;
-    CleanBuffer();
 
     while(MessageAvailable()){
+        //Remove any corrupted messages;
+        CleanBuffer();
+
+        qDebug() << this->IncomingBytes;
         GetNextMessage();   //This function automatically emits the found message
     }
 }
@@ -213,7 +215,6 @@ void UART::GetNextMessage()
                 data[j] = static_cast<uint8_t>(dataStringList[j].toUInt(&dataOk[j]));
                 DLC++;
             }
-            qDebug() << dataStringList[0];
         }
 
         //Check the results

@@ -3,6 +3,7 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <cmath>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -52,6 +53,18 @@ void MainWindow::ProcessMessage(Message *m)
     }
     else if(m->ID == Get_Control_Status_Response().id){
         this->Callback_ControlStatus(m);
+    }
+    else if(m->ID == Get_Joint_Current_Response().id){
+        //Not implemented yet
+    }
+    else if(m->ID == Get_Position_Response().id){
+        //Not implemented yet
+    }
+    else if(m->ID == Get_Joint_Angle_Response().id){
+        this->Callback_JointAngle(m);
+    }
+    else if(m->ID == Home_Response().id){
+        //Not implemented yet
     }
 }
 
@@ -183,12 +196,15 @@ void MainWindow::Callback_ControlStatus(Message *m)
 
 void MainWindow::Callback_JointAngle(Message *m)
 {
-    Get_Joint_Angle_Response *angle = dynamic_cast<Get_Joint_Angle_Response*>(m);
+    Get_Joint_Angle_Response::Get_Joint_Angle_Response_data *angle
+            = reinterpret_cast<Get_Joint_Angle_Response::Get_Joint_Angle_Response_data*>(m->pData);
 
-    float val = UART::byteToFloats(angle->data.angleBytes);
+    qDebug() << angle->Joint;
+
+    float val = UART::byteToFloats(angle->angleBytes);
     QString text = QString::number(static_cast<double>(val));
 
-    switch(angle->data.Joint){
+    switch(angle->Joint){
         case 1:
             ui->joint1Status->setText(text);
             break;
@@ -207,7 +223,7 @@ void MainWindow::Callback_JointAngle(Message *m)
         case 6:
             ui->joint6Status->setText(text);
             break;
-        defualt:
+        default:
             //Do nothing
             break;
     }
@@ -344,4 +360,13 @@ void MainWindow::on_zSendButton_released()
 void MainWindow::on_thetaSendButton_released()
 {
     SetArmPosition(static_cast<float>(ui->thetaPosInput->value()), 4);
+}
+
+void MainWindow::on_actionSerial_Settings_triggered()
+{
+    if(!this->settings){
+        this->settings = new SerialSettingsWindow();
+    }
+
+    this->settings->show();
 }

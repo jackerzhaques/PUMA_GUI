@@ -591,7 +591,7 @@ void IDCD_Editor::on_GenerateTivaHeaderButton_released()
         for(int j = 0; j < parameters[i].size(); j++){
             Parameter p = parameters[i][j];
 
-            dataInit += p.name.replace(" ", "");
+            dataInit += "0";
 
             if(j < parameters[i].size() - 1){
                 dataInit += ",";
