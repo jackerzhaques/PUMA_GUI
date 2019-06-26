@@ -17,6 +17,12 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="3" column="2" colspan="4">
      <widget class="QSlider" name="yPosSlider">
+      <property name="maximum">
+       <number>1000</number>
+      </property>
+      <property name="value">
+       <number>500</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -37,6 +43,12 @@
     </item>
     <item row="4" column="2" colspan="4">
      <widget class="QSlider" name="zPosSlider">
+      <property name="maximum">
+       <number>1000</number>
+      </property>
+      <property name="value">
+       <number>500</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -73,7 +85,14 @@
      </widget>
     </item>
     <item row="5" column="1">
-     <widget class="QDoubleSpinBox" name="thetaPosInput"/>
+     <widget class="QDoubleSpinBox" name="thetaPosInput">
+      <property name="minimum">
+       <double>-90.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>90.000000000000000</double>
+      </property>
+     </widget>
     </item>
     <item row="5" column="0">
      <widget class="QLabel" name="label_8">
@@ -127,6 +146,12 @@
     </item>
     <item row="5" column="2" colspan="4">
      <widget class="QSlider" name="thetaPosSlider">
+      <property name="maximum">
+       <number>1000</number>
+      </property>
+      <property name="value">
+       <number>500</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -151,13 +176,28 @@
     </item>
     <item row="2" column="2" colspan="4">
      <widget class="QSlider" name="xPosSlider">
+      <property name="maximum">
+       <number>1000</number>
+      </property>
+      <property name="value">
+       <number>500</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::NoTicks</enum>
+      </property>
+      <property name="tickInterval">
+       <number>0</number>
       </property>
      </widget>
     </item>
     <item row="6" column="1">
      <widget class="QSpinBox" name="posStreamInput">
+      <property name="minimum">
+       <number>1</number>
+      </property>
       <property name="maximum">
        <number>20</number>
       </property>
@@ -200,12 +240,15 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLabel" name="label_12">
+        <widget class="QLabel" name="controlStatusLabel">
          <property name="text">
           <string>N/A</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -230,7 +273,7 @@
           <string>Statuses</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignHCenter|Qt::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -261,6 +304,9 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -308,7 +354,7 @@
           <string>Homing</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignHCenter|Qt::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -459,7 +505,7 @@
           <string>Joints</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignHCenter|Qt::AlignTop</set>
          </property>
         </widget>
        </item>

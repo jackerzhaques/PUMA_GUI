@@ -1,0 +1,44 @@
+<Messages>
+ <Message DLC="0" Name="Heartbeat" ID="1"/>
+ <Message DLC="0" Name="Heartbeat Response" ID="2"/>
+ <Message DLC="5" Name="Set Position" ID="3">
+  <Parameter DefaultValue="0" Size="32" Name="floatPos" Type="uint32_t" Bit="0" Byte="0"/>
+  <Parameter DefaultValue="1" Size="8" Name="Dimension" Type="uint8_t" Bit="0" Byte="4"/>
+ </Message>
+ <Message DLC="5" Name="Set Joint Angle" ID="4">
+  <Parameter DefaultValue="0" Size="32" Name="floatDegrees" Type="uint32_t" Bit="0" Byte="0"/>
+  <Parameter DefaultValue="1" Size="8" Name="Joint" Type="uint8_t" Bit="0" Byte="4"/>
+ </Message>
+ <Message DLC="0" Name="Get Encoder Status" ID="5"/>
+ <Message DLC="1" Name="Get Encoder Status Response" ID="6">
+  <Parameter DefaultValue="0" Size="8" Name="Joint" Type="uint8_t" Bit="0" Byte="0"/>
+ </Message>
+ <Message DLC="1" Name="Get Joint Current" ID="7">
+  <Parameter DefaultValue="1" Size="8" Name="Joint" Type="uint8_t" Bit="0" Byte="0"/>
+ </Message>
+ <Message DLC="5" Name="Get Joint Current Response" ID="8">
+  <Parameter DefaultValue="0" Size="32" Name="current" Type="uint32_t" Bit="0" Byte="0"/>
+  <Parameter DefaultValue="0" Size="8" Name="Joint" Type="uint8_t" Bit="0" Byte="4"/>
+ </Message>
+ <Message DLC="1" Name="Get Position" ID="9">
+  <Parameter DefaultValue="1" Size="8" Name="Dimension" Type="uint8_t" Bit="0" Byte="0"/>
+ </Message>
+ <Message DLC="5" Name="Get Position Response" ID="10">
+  <Parameter DefaultValue="0" Size="32" Name="Position" Type="uint32_t" Bit="0" Byte="0"/>
+  <Parameter DefaultValue="0" Size="8" Name="Dimension" Type="uint8_t" Bit="0" Byte="4"/>
+ </Message>
+ <Message DLC="1" Name="Get Joint Angle" ID="11">
+  <Parameter DefaultValue="1" Size="8" Name="Joint" Type="uint8_t" Bit="0" Byte="0"/>
+ </Message>
+ <Message DLC="5" Name="Get Joint Angle Response" ID="12">
+  <Parameter DefaultValue="0" Size="32" Name="angleBytes" Type="uint32_t" Bit="0" Byte="0"/>
+  <Parameter DefaultValue="0" Size="8" Name="Joint" Type="uint8_t" Bit="0" Byte="4"/>
+ </Message>
+ <Message DLC="0" Name="Get Control Status" ID="13"/>
+ <Message DLC="1" Name="Get Control Status Response" ID="14">
+  <Parameter DefaultValue="0" Size="8" Name="status" Type="uint8_t" Bit="0" Byte="0"/>
+ </Message>
+ <Message DLC="0" Name="Auto Home" ID="15"/>
+ <Message DLC="0" Name="Manual Home" ID="16"/>
+ <Message DLC="0" Name="Home Response" ID="17"/>
+</Messages>

@@ -17,6 +17,8 @@ struct Message{
     uint16_t ID     = 0;
     uint8_t DLC     = 0;
     uint8_t *pData;
+
+    virtual ~Message() {} //Virtual destructor allows dynamic downcasting
 };
 
 void dump_message(Message m);

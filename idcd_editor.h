@@ -64,12 +64,14 @@ private:
     QDomDocument *xmlDoc;
     QString filePath    = "";
     bool autoSaveEnabled       = false;
+    bool updatingInProgress    = false;
 
     QList<Message> messages;
     QList<QList<Parameter>> parameters;
 
     void parseXML();
     void generateXML();
+    void organizeMessages();
     void updateMessages();
     void updateParameterGUI();
     void clearMessagesFromGUI();

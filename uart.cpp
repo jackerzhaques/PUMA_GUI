@@ -112,6 +112,24 @@ void UART::SendMessage(Message *m)
     instance->serialPort->write(data.toLocal8Bit());
 }
 
+uint32_t UART::floatToBytes(float p)
+{
+    uint32_t result = 0;
+
+    memcpy(&result, &p, sizeof(p));
+
+    return result;
+}
+
+float UART::byteToFloats(uint32_t b)
+{
+    float result = 0;
+
+    memcpy(&result, &b, sizeof(b));
+
+    return result;
+}
+
 void UART::ReadSerialData()
 {
     while(this->serialPort->bytesAvailable()){

@@ -17,7 +17,7 @@ IDCD_Editor::IDCD_Editor(QWidget *parent) :
 
     QTimer *autoSaveTimer = new QTimer(this);
     connect(autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
-    //autoSaveTimer->start(1000);   //Autosave disabled from multiple bugs
+    //autoSaveTimer->start(1000);   //Autosave disabled from multiple bugs (race conditions)
 
     this->setWindowTitle("IDCD Editor");
 }
@@ -154,7 +154,6 @@ void IDCD_Editor::parseXML()
                 parameter = parameter.nextSibling().toElement();
             }
             parameters.append(params);
-            dump_params(parameters[messageNum]);
             messageNum++;
         }
 
@@ -200,8 +199,27 @@ void IDCD_Editor::generateXML()
     }
 }
 
+void IDCD_Editor::organizeMessages()
+{
+    for(int j = 0; j < messages.size(); j++){
+        for(int i = 0; i < messages.size() - 1; i++){
+            if(messages[i].ID > messages[i + 1].ID){
+                Message t = messages[i + 1];
+                messages[i + 1] = messages[i];
+                messages[i] = t;
+
+                QList<Parameter> p = parameters[i + 1];
+                parameters[i + 1] = parameters[i];
+                parameters[i] = p;
+            }
+        }
+    }
+}
+
 void IDCD_Editor::updateMessages()
 {
+    updatingInProgress = true;
+    this->organizeMessages();
     this->clearMessagesFromGUI();
     this->ui->MessageList->setRowCount(messages.size());
 
@@ -221,6 +239,7 @@ void IDCD_Editor::updateMessages()
         this->ui->MessageList->setItem(i, 1, idItem);
         this->ui->MessageList->setItem(i, 2, dlcItem);
     }
+    updatingInProgress = false;
 }
 
 void IDCD_Editor::updateParameterGUI()
@@ -303,7 +322,19 @@ void IDCD_Editor::saveQtHeader(QString headerText)
 
 void IDCD_Editor::saveTivaHeader(QString headerText)
 {
+    QString currentDir = QDir::currentPath();
+    QString filePath = QFileDialog::getSaveFileName(this,
+                        "Save IDCD Tiva Header File", currentDir, "Header Files (*.h)");
 
+    QFile file(filePath);
+    if(file.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)){
+        QTextStream stream(&file);
+        stream << headerText;
+        file.close();
+    }
+    else{
+        qDebug() << "Cannot save IDCD, unable to open file for read write operations" << filePath;
+    }
 }
 
 void IDCD_Editor::dump_params(QList<IDCD_Editor::Parameter> params)
@@ -322,28 +353,35 @@ void IDCD_Editor::dump_params(QList<IDCD_Editor::Parameter> params)
 
 void IDCD_Editor::on_MessageList_itemChanged(QTableWidgetItem *item)
 {
-    //Find the item
-    for(int row = 0; row < ui->MessageList->rowCount(); row++){
-        for(int col = 0; col < ui->MessageList->columnCount(); col++){
-            if(ui->MessageList->item(row,col) == item){
-                Message m = messages.at(row);
-                switch(col){
-                    case 0:
-                        m.Name = item->text();
-                        break;
-                    case 1:
-                        m.ID = static_cast<uint16_t>(item->text().toUInt());
-                        break;
-                    case 2:
-                        m.DLC = static_cast<uint8_t>(item->text().toUInt());
-                        break;
-                    default:
-                        //Do nothing
-                        break;
+    if(!updatingInProgress){
+        //Find the item
+        for(int row = 0; row < ui->MessageList->rowCount(); row++){
+            for(int col = 0; col < ui->MessageList->columnCount(); col++){
+                if(ui->MessageList->item(row,col) == item){
+                    Message m = messages.at(row);
+                    switch(col){
+                        case 0:
+                            m.Name = item->text();
+                            break;
+                        case 1:
+                            m.ID = static_cast<uint16_t>(item->text().toUInt());
+                            break;
+                        case 2:
+                            m.DLC = static_cast<uint8_t>(item->text().toUInt());
+                            break;
+                        default:
+                            //Do nothing
+                            break;
+                    }
+                    messages.replace(row, m);
                 }
-                messages.replace(row, m);
             }
         }
+
+        this->updateMessages();
+    }
+    else{
+        //Currently updating GUI, do nothing
     }
 }
 
@@ -448,11 +486,14 @@ void IDCD_Editor::on_GenerateQtHeaderButton_released()
                              "\n"
                              "  struct %4_data{\n"      //Message name
                              "%5\n"//Parameters line
-                             "  };\n"
+                             "  };"
+                             "\n"
+                             "  %4_data data;\n"
                              "\n"
                              "  %6(){\n"                  //Message name
                              "      this->ID = id;\n"
-                             "      this->pData = reinterpret_cast<uint8_t*>(new %7_data());\n"   //Message name
+                             "      this->DLC = dlc;\n"
+                             "      this->pData = reinterpret_cast<uint8_t*>(&data);\n"   //Message name
                              "  }\n"
                              "};\n";
 
@@ -527,5 +568,101 @@ void IDCD_Editor::on_GenerateQtHeaderButton_released()
 
 void IDCD_Editor::on_GenerateTivaHeaderButton_released()
 {
+    QString HeaderText;
 
+    //Add headers 'header'
+    HeaderText += "#ifndef IDCD_H\n"
+                  "#define IDCD_H\n"
+                  "\n";
+
+    for(int i = 0; i < messages.size(); i++){
+        Message m = messages[i];
+
+        //Replace spaces in the name with underscores
+        QString defineName = m.Name.replace(" ", "_").toUpper();
+        QString structName = m.Name.replace(" ", "");
+
+        QString messageInit = "{%1_ID, %1_DLC, %1_DATA_INIT}";
+        messageInit = messageInit.arg(defineName);
+
+        //Create parameter text
+        QString parameterText;
+        QString dataInit = "{";
+        for(int j = 0; j < parameters[i].size(); j++){
+            Parameter p = parameters[i][j];
+
+            dataInit += p.name.replace(" ", "");
+
+            if(j < parameters[i].size() - 1){
+                dataInit += ",";
+            }
+            else{
+                //Do nothing
+            }
+
+            parameterText += "      %1 %2%3;";    //type, name, default value, bit packing
+
+            //Type
+            parameterText = parameterText.arg(p.type);
+
+            //Name
+            parameterText = parameterText.arg(p.name);
+
+            //Bit packing if necessary
+            QString bitPackingText = "";
+            if(p.size % 8 != 0){
+                //Bit packing is present
+                bitPackingText = " : %1";
+                bitPackingText = bitPackingText.arg(p.size);
+            }
+            else{
+                //Do nothing
+            }
+            parameterText = parameterText.arg(bitPackingText);
+
+            //Add newline if it isn't the last line
+            if(j < parameters[i].size() - 1){
+                parameterText += "\n";
+            }
+        }
+
+        dataInit += "}";
+
+        QString structText = ""
+                             "#define %1_ID                 %2\n"
+                             "#define %1_DLC                %3\n"
+                             "#define %1_DATA_INIT          %4\n"
+                             "#define %1_INIT               %5\n"
+                             "\n"
+                             "typedef struct %7_data_tag{\n"
+                             "%6\n"
+                             "} %7_data;\n"
+                             "\n"
+                             "typedef struct %7_tag{\n"
+                             "  uint16_t ID;\n"
+                             "  uint8_t DLC;\n"
+                             "  %7_data data;\n"
+                             "} %7;\n"
+                             "\n";
+
+        structText = structText.arg(defineName);
+        structText = structText.arg(m.ID);
+        structText = structText.arg(m.DLC);
+        structText = structText.arg(dataInit);
+        structText = structText.arg(messageInit);
+        structText = structText.arg(parameterText);
+        structText = structText.arg(structName);
+
+        HeaderText += structText + "\n";
+    }
+
+    //Append footer
+    HeaderText += "#endif // IDCD_H\n";
+
+    this->saveTivaHeader(HeaderText);
+    QFile file("P:\\QtProjects\\PumaGUI\\build-PUMA_GUI-Desktop_Qt_5_11_2_MSVC2015_64bit-Debug\\test.txt");
+    file.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate);
+    QTextStream stream(&file);
+    stream << HeaderText;
+    file.close();
 }

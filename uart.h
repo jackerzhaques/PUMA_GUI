@@ -32,6 +32,8 @@ public:
     void hook(void* context, callback_func functionHook);
 
     static void SendMessage(Message *m);
+    static uint32_t floatToBytes(float p);
+    static float byteToFloats(uint32_t b);
 signals:
 
 public slots:
