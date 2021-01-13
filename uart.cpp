@@ -173,7 +173,6 @@ void UART::ProcessBuffer()
         //Remove any corrupted messages;
         CleanBuffer();
 
-        qDebug() << this->IncomingBytes;
         GetNextMessage();   //This function automatically emits the found message
     }
 }

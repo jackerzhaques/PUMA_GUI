@@ -199,10 +199,14 @@ void MainWindow::Callback_JointAngle(Message *m)
     Get_Joint_Angle_Response::Get_Joint_Angle_Response_data *angle
             = reinterpret_cast<Get_Joint_Angle_Response::Get_Joint_Angle_Response_data*>(m->pData);
 
-    qDebug() << angle->Joint;
-
     float val = UART::byteToFloats(angle->angleBytes);
     QString text = QString::number(static_cast<double>(val));
+
+    if(angle->Joint > 0 && angle->Joint <= 6){
+        jointAngles[angle->Joint - 1] =
+                static_cast<double>(val) * M_PI/180;
+        this->updatePosition();
+    }
 
     switch(angle->Joint){
         case 1:
@@ -243,6 +247,59 @@ void MainWindow::SetArmPosition(float pos, uint8_t Dimension)
     m.data.floatPos = UART::floatToBytes(pos);
     m.data.Dimension = Dimension;
     UART::SendMessage(&m);
+}
+
+void MainWindow::updatePosition()
+{
+    const static double
+            L1 = 13,
+            L2 = 2.5,
+            L3 = 8.0,
+            L4 = 2.5,
+            L5 = 8.0,
+            L6 = 3.0;
+
+    //Calculate forward kinematics
+    double x = 0, y = 0, z = 0, theta = 0;
+
+    //J1
+    x = 0;
+    y = 0;
+    z = L1;
+
+    //J1 offset
+    //z = z
+    double xy = L2;
+    x = x + cos(jointAngles[0]) * xy;
+    y = y + sin(jointAngles[0]) * xy;
+
+    //J2
+    xy = cos(jointAngles[1]) * L3;
+    z = z + (sin(jointAngles[1]) * L3);
+    x = x + cos(jointAngles[0] + M_PI/2) * xy;
+    y = y + sin(jointAngles[0] + M_PI/2) * xy;
+
+    //J2 offset
+    //z = z
+    xy = L4;
+    x = x + (xy * cos(jointAngles[0]));
+    y = y + (xy * sin(jointAngles[0]));
+
+    //J3
+    xy = cos(jointAngles[2] + jointAngles[2]) * L5;
+    z = z + (sin(jointAngles[2] + jointAngles[1]) * L5);
+    x = x + (cos(jointAngles[0] + M_PI/2) * xy);
+    y = y + (sin(jointAngles[0] + M_PI/2) * xy);
+
+    //J4
+    xy = cos(jointAngles[3] + jointAngles[2] + jointAngles[1]) * L6;
+    z = z + (sin(jointAngles[3] + jointAngles[2] + jointAngles[1]) * L6);
+    x = x + (cos(jointAngles[0] + M_PI/2) * xy);
+    y = y + (sin(jointAngles[0] + M_PI/2) * xy);
+
+    ui->RealXLabel->setText(QString::number(x));
+    ui->RealYLabel->setText(QString::number(y));
+    ui->RealZLabel->setText(QString::number(z));
 }
 
 void MainWindow::on_actionIDCD_Editor_triggered()

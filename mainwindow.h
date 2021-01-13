@@ -78,6 +78,7 @@ private:
     bool targetIsConnected          = false;
     bool targetConnectedRecently    = false;
     QTimer *positionStreamTimer     = nullptr;
+    double jointAngles[6]            = {0};
 
     //Message callback
     void Callback_Heartbeat();
@@ -88,6 +89,9 @@ private:
     //Message send helper functions
     void SendJointAngle(float angle, uint8_t joint);
     void SetArmPosition(float pos, uint8_t Dimension);
+
+    //GUI Update
+    void updatePosition();
 };
 
 #endif // MAINWINDOW_H
